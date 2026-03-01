@@ -35,11 +35,12 @@ function generateRandomPreset(): Record<string, string> {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const presets = await prisma.enginePreset.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -52,9 +53,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const { action } = body
 
@@ -67,7 +69,7 @@ export async function POST(
         const preset = generateRandomPreset()
         const savedPreset = await prisma.enginePreset.create({
           data: {
-            projectId: params.id,
+            projectId: id,
             name: `${preset.skeletonType} - ${preset.primaryFunction} (${i + 1})`,
             ...preset,
           } as any,

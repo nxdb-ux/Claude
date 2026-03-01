@@ -3,15 +3,16 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { factIds } = await request.json() as { factIds: string[] }
 
     await prisma.fact.updateMany({
       where: {
         id: { in: factIds },
-        projectId: params.id,
+        projectId: id,
       },
       data: { approved: true },
     })

@@ -4,12 +4,13 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // Get all documents for this project
     const documents = await prisma.document.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
     })
 
     const allFacts = []
@@ -27,7 +28,7 @@ export async function POST(
       for (const fact of facts) {
         const savedFact = await prisma.fact.create({
           data: {
-            projectId: params.id,
+            projectId: id,
             claim: fact.claim || '',
             topicTag: fact.topicTag || null,
             proofCluster: fact.proofCluster || null,

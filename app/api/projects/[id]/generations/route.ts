@@ -5,11 +5,12 @@ import { qaChecker } from '@/lib/qa-checker'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const generations = await prisma.generation.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       orderBy: { createdAt: 'desc' },
       take: 20,
     })
@@ -23,9 +24,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const openai = getOpenAIClient()
     if (!openai) {
       return NextResponse.json(
@@ -46,7 +48,7 @@ export async function POST(
     } else {
       // Random preset
       const presets = await prisma.enginePreset.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
       })
       if (presets.length > 0) {
         preset = presets[Math.floor(Math.random() * presets.length)]
@@ -61,7 +63,7 @@ export async function POST(
     const facts = await prisma.fact.findMany({
       where: {
         id: { in: factIds },
-        projectId: params.id,
+        projectId: id,
         approved: true,
       },
     })
@@ -72,7 +74,7 @@ export async function POST(
 
     // Get project for tone profile
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     // Generate post
@@ -181,7 +183,7 @@ Fix and output the corrected post.`,
     // Save generation
     const savedGeneration = await prisma.generation.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         enginePresetId: preset.id,
         mode,
         cashtagA,

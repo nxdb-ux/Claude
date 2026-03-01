@@ -113,35 +113,53 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={handleGeneratePresets}
           disabled={generating}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+          className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-emerald-700 hover:to-emerald-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
         >
-          {generating ? 'Generating...' : 'Generate 10-20 Presets'}
+          {generating ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              Generating...
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m0 0h6m-6-6H6m0 0H0" />
+              </svg>
+              Generate 10-20 Presets
+            </>
+          )}
         </button>
         <button
           onClick={handleRandomize}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2"
         >
-          Create Random Preset
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Random Preset
         </button>
       </div>
 
       {presets.length > 0 ? (
-        <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="space-y-4 max-h-[600px] overflow-y-auto">
           {presets.map((preset) => (
-            <div key={preset.id} className="border border-gray-200 rounded-lg p-4">
+            <div key={preset.id} className="border border-gray-200 bg-white rounded-xl p-6 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
-                <h4 className="text-lg font-semibold text-gray-900">{preset.name}</h4>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">{preset.name}</h4>
+                  <p className="text-xs text-gray-600 mt-1">Created on {new Date(preset.createdAt).toLocaleDateString()}</p>
+                </div>
                 {editingId !== preset.id && (
                   <button
                     onClick={() => {
                       setEditingId(preset.id)
                       setEditingValues(preset)
                     }}
-                    className="text-sm text-blue-600 hover:text-blue-800"
+                    className="px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                   >
                     Edit
                   </button>
@@ -149,11 +167,11 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
               </div>
 
               {editingId === preset.id ? (
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   {Object.entries(ENGINE_MATRIX).map(([key, options]) => (
                     <div key={key}>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {key}
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1')}
                       </label>
                       <select
                         value={editingValues[key as keyof EnginePreset] || ''}
@@ -163,7 +181,7 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
                             [key]: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         {options.map((option) => (
                           <option key={option} value={option}>
@@ -175,21 +193,21 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-                  <div><span className="font-medium">Skeleton:</span> {preset.skeletonType}</div>
-                  <div><span className="font-medium">Primary:</span> {preset.primaryFunction}</div>
-                  <div><span className="font-medium">Secondary:</span> {preset.secondaryFunction}</div>
-                  <div><span className="font-medium">Tension:</span> {preset.investorTension}</div>
-                  <div><span className="font-medium">Cashtag:</span> {preset.cashtagRelationship}</div>
-                  <div><span className="font-medium">Opening:</span> {preset.openingMechanic}</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Skeleton:</span> <span className="text-gray-600">{preset.skeletonType}</span></div>
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Primary:</span> <span className="text-gray-600">{preset.primaryFunction}</span></div>
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Secondary:</span> <span className="text-gray-600">{preset.secondaryFunction}</span></div>
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Tension:</span> <span className="text-gray-600">{preset.investorTension}</span></div>
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Cashtag:</span> <span className="text-gray-600">{preset.cashtagRelationship}</span></div>
+                  <div className="bg-gray-50 p-3 rounded-lg"><span className="font-semibold text-gray-700">Opening:</span> <span className="text-gray-600">{preset.openingMechanic}</span></div>
                 </div>
               )}
 
               {editingId === preset.id && (
-                <div className="flex gap-2 mt-4">
+                <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => handleSaveEdits(preset)}
-                    className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold transition-colors"
                   >
                     Save
                   </button>
@@ -198,7 +216,7 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
                       setEditingId(null)
                       setEditingValues({})
                     }}
-                    className="px-3 py-1 bg-gray-400 text-white rounded text-sm hover:bg-gray-500"
+                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-semibold transition-colors"
                   >
                     Cancel
                   </button>
@@ -208,7 +226,13 @@ export default function PresetsTab({ projectId }: PresetsTabProps) {
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-center py-8">No presets yet. Click "Generate Presets" to create some.</p>
+        <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+          <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <p className="text-gray-600 font-medium">No presets yet</p>
+          <p className="text-gray-500 text-sm mt-2">Click "Generate Presets" to create engine presets</p>
+        </div>
       )}
     </div>
   )

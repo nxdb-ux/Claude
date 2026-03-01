@@ -20,12 +20,13 @@ function getRandomFromArray(arr: string[]): string {
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const preset = await prisma.enginePreset.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         name: `Random Preset ${Date.now()}`,
         skeletonType: getRandomFromArray(ENGINE_MATRIX.skeletonType),
         primaryFunction: getRandomFromArray(ENGINE_MATRIX.primaryFunction),

@@ -8,11 +8,12 @@ const UPLOAD_DIR = path.join(process.cwd(), 'data', 'uploads')
 
 export async function GET(
   __request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const documents = await prisma.document.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -25,12 +26,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // Check if project exists
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!project) {
@@ -85,7 +87,7 @@ export async function POST(
 
     const document = await prisma.document.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         filename: file.name,
         mimeType,
         path: filepath,

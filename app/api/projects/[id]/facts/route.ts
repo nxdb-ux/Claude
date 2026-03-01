@@ -3,13 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { searchParams } = new URL(request.url)
     const approved = searchParams.get('approved')
 
-    const where: any = { projectId: params.id }
+    const where: any = { projectId: id }
     if (approved === 'true') {
       where.approved = true
     } else if (approved === 'false') {

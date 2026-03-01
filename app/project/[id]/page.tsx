@@ -53,45 +53,59 @@ export default function ProjectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading project...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+          <p className="text-gray-600">Loading project...</p>
+        </div>
       </div>
     )
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Project not found</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 4v2M12 3a9 9 0 110 18 9 9 0 010-18z" />
+          </svg>
+          <p className="text-gray-600 text-lg mb-6">Project not found</p>
+          <a href="/" className="text-blue-600 hover:text-blue-800 font-semibold">← Back to Projects</a>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <a href="/" className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-block">
-            ← Back to Projects
+          <a href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold mb-6 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Projects
           </a>
-          <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{project.name}</h1>
           {project.description && (
-            <p className="text-gray-600 mt-2">{project.description}</p>
+            <p className="text-gray-600 text-lg">{project.description}</p>
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow">
+        {/* Tabs Container */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6" aria-label="Tabs">
+          <div className="border-b border-gray-200 bg-gray-50/50">
+            <nav className="flex overflow-x-auto px-6 scrollbar-hide" aria-label="Tabs">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-blue-600 text-blue-600 bg-blue-50/50'
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-white/50'
                   }`}
                 >
                   {tab.label}
@@ -101,7 +115,7 @@ export default function ProjectPage() {
           </div>
 
           {/* Tab Content */}
-          <div className="p-6">
+          <div className="p-8">
             {activeTab === 'documents' && <DocumentsTab projectId={projectId} />}
             {activeTab === 'research' && <ResearchTab projectId={projectId} />}
             {activeTab === 'facts' && <FactsTab projectId={projectId} />}

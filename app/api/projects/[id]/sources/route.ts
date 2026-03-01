@@ -4,11 +4,12 @@ import axios from 'axios'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const sources = await prisma.source.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       orderBy: { fetchedAt: 'desc' },
     })
 
@@ -21,9 +22,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { urls } = await request.json() as { urls: string[] }
 
     if (!Array.isArray(urls) || urls.length === 0) {
@@ -53,7 +55,7 @@ export async function POST(
 
         const source = await prisma.source.create({
           data: {
-            projectId: params.id,
+            projectId: id,
             url,
             title,
             rawText: rawText.substring(0, 100000), // Limit to 100k chars
@@ -67,7 +69,7 @@ export async function POST(
 
         const source = await prisma.source.create({
           data: {
-            projectId: params.id,
+            projectId: id,
             url,
             status: 'failed',
             error: error instanceof Error ? error.message : 'Unknown error',

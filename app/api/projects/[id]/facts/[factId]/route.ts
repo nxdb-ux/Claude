@@ -3,14 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; factId: string } }
+  { params }: { params: Promise<{ id: string; factId: string }> }
 ) {
   try {
+    const { id, factId } = await params
     const body = await request.json()
     const { approved } = body as { approved: boolean }
 
     const fact = await prisma.fact.update({
-      where: { id: params.factId },
+      where: { id: factId },
       data: { approved },
     })
 

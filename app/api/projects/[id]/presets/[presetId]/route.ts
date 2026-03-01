@@ -3,13 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; presetId: string } }
+  { params }: { params: Promise<{ id: string; presetId: string }> }
 ) {
   try {
+    const { id, presetId } = await params
     const body = await request.json()
 
     const updatedPreset = await prisma.enginePreset.update({
-      where: { id: params.presetId },
+      where: { id: presetId },
       data: body,
     })
 
