@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+  toneProfile       String?  // JSON
+  cmcRules          String?  // JSON
+  cashtagWhitelist  String?  // JSON
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  documents         Document[]
+  sources           Source[]
+  facts             Fact[]
+  enginePresets     EnginePreset[]
+  generations       Generation[]
+  jobs              Job[]
+}
+
+model Document {
+  id            String   @id @default(cuid())
+  projectId     String
+  filename      String
+  mimeType      String
+  path          String
+  extractedText String?  // Long text
+  createdAt     DateTime @default(now())
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Source {
+  id          String   @id @default(cuid())
+  projectId   String
+  url         String
+  title       String?
+  publishedAt DateTime?
+  fetchedAt   DateTime @default(now())
+  rawText     String?  // Long text
+  status      String   // fetched, failed
+  error       String?
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  facts       Fact[]
+
+  @@index([projectId])
+  @@index([url])
+}
+
+model Fact {
+  id              String   @id @default(cuid())
+  projectId       String
+  claim           String
+  topicTag        String?
+  proofCluster    String?
+  date            DateTime?
+  confidence      String   // high, medium, low
+  sourceId        String?
+  sourceUrl       String?
+  approved        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  source          Source?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  generations     Generation[]
+
+  @@index([projectId])
+  @@index([sourceId])
+  @@index([approved])
+}
+
+model EnginePreset {
+  id                  String   @id @default(cuid())
+  projectId           String
+  name                String
+  skeletonType        String
+  primaryFunction     String
+  secondaryFunction   String
+  investorTension    String
+  cashtagRelationship String
+  openingMechanic     String
+  proofCluster        String
+  blueprintMode       String
+  toneDial            String
+  closingPosition     String
+  createdAt           DateTime @default(now())
+
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  generations         Generation[]
+
+  @@index([projectId])
+}
+
+model Generation {
+  id              String   @id @default(cuid())
+  projectId       String
+  enginePresetId  String?
+  mode            String   // 1, 2, 3
+  cashtagA        String
+  cashtagB        String
+  copyHook        String
+  thumbnailHook   String
+  bodyText        String
+  qaPassed        Boolean  @default(false)
+  qaReport        String?  // JSON
+  usedFactIds     String?  // JSON array
+  createdAt       DateTime @default(now())
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  enginePreset    EnginePreset? @relation(fields: [enginePresetId], references: [id], onDelete: SetNull)
+  usedFacts       Fact[]
+
+  @@index([projectId])
+  @@index([enginePresetId])
+  @@index([qaPassed])
+}
+
+model Job {
+  id              String   @id @default(cuid())
+  projectId       String
+  type            String   // ingest_document, fetch_sources, extract_facts
+  payload         String   // JSON
+  status          String   // queued, running, done, failed
+  attempts        Int      @default(0)
+  lastError       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+}
